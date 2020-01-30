@@ -1,0 +1,16 @@
+[user]
+	email = dss@flowtale.ai
+	name = Dennis Schneidermann
+[credential]
+	helper = cache --timeout=1000000000
+[alias]
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	start = !git init && git commit --allow-empty -m \"Initial commit\"
+	lm = log --oneline origin/master..HEAD
+	adog = log --all --decorate --oneline --graph
+	shallow-clone = clone --depth=1 --no-single-branch
+	prune-branches = !git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d
+	unfixup = !git rebase -i --autosquash HEAD~$(git lm | wc -l)
+	pushf = push --force-with-lease
+	chs = !git checkout $1 && git status && :
+	fix = !git add . && git diff --cached && git commit --amend --no-edit --quiet && git status && :
