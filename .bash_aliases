@@ -11,5 +11,40 @@ gitgrep() {
  git log -G $1
 }
 
-df -h | grep -e "/dev/sda1\|Filesystem"
+gs() {
+ git status
+}
 
+repeat() {
+ [ "$#" -ne 1 ] && echo "Can only take one single-quoted argument" && return 1
+ TempFile=$(tempfile)
+ echo "#!/bin/bash" > "$TempFile"
+ echo $1 >> "$TempFile"
+ chmod a+x "$TempFile"
+ while true; do
+   source $TempFile
+   [ -z "$REPEATSILENT" ] && echo "** repeat: Command exited"
+   sleep 2
+ done
+}
+
+disk() {
+ df -h | grep -e "/dev/sda1\|Filesystem"
+}
+
+rdisk() {
+ REPEATSILENT="YES" repeat 'clear;disk'
+}
+
+ip() {
+ ifconfig | grep --after 2 enp0s3
+}
+
+gitsearch() {
+ commits=$(git log -S $1 --oneline | awk '{print $1;}')
+ for commit in $commits; do
+  printf "\n"
+  git show --quiet --oneline $commit
+  git log --patch --color=always ${commit}^..$commit | grep --color=never $1
+ done
+}
