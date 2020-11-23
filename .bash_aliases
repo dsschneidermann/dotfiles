@@ -1,3 +1,6 @@
+alias mv="mv -iv"
+alias cp="cp -iv"
+
 docker() {
  if [[ $@ == "ps" ]]; then
   command docker ps --format "table {{.Image}}\t{{.Status}}\t{{.Names}}"
@@ -48,3 +51,5 @@ gitsearch() {
   git log --patch --color=always ${commit}^..$commit | grep --color=never $1
  done
 }
+
+disk

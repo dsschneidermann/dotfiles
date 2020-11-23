@@ -1,19 +1,28 @@
 [user]
-        email = dss@flowtale.ai
-        name = Dennis Schneidermann
+	email = dss@flowtale.ai
+	name = Dennis Schneidermann
 [credential]
-        helper = cache --timeout=1000000000
+	helper = cache --timeout=1000000000
 [alias]
-        lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --abbrev-commit
-        start = !git init && git commit --allow-empty -m \"Initial commit\"
-        lm = log --oneline origin/master..HEAD
-        adog = log --all --decorate --oneline --graph
-        shallow-clone = clone --depth=1 --no-single-branch
-        prune-branches = !git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d
-        unfixup = !git rebase -i --autosquash HEAD~$(git lm | wc -l)
-        pushf = push --force-with-lease
-        chs = !git checkout $1 && git status && :
-        fix = !git add . && git diff --cached && git commit --amend --no-edit --quiet && git status && :
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --abbrev-commit
+	start = "!GIT_COMMITTER_DATE=0 git init && git commit --date 0 --allow-empty -m \"Initial commit\""
+	lm = "!printf \"Current HEAD:\n\" && git lg | sed \"/$(git show $(git merge-base HEAD $1) -q | head -n1 | cut -c8-14)/q\" - && printf \"\nTarget branch:\n\" && git lg $1 | sed \"/$(git show $(git merge-base HEAD $1) -q | head -n1 | cut -c8-14)/q\" -"
+	adog = log --all --decorate --oneline --graph
+	shallow-clone = clone --depth=1 --no-single-branch
+	prune-branches = !git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d
+	pushf = push --force-with-lease
+	c = !git checkout $1 && git status && :
+	commitfix = !git add . && git diff --cached && git commit --amend --no-edit --quiet && git status && :
+	fixup = "!git commit -m \"fixup! $(git show $1 -q | head -n1 | cut -c8-14)\" && git status && :"
+        r = "!git rebase -i --autosquash --autostash $(i=1; while [ $(git branch -r --contains HEAD~$i | wc -l) -lt 2 ]; do git branch -r --contains HEAD~$i 1> /dev/null 2>&1 || exit 1; i=$(($i+1)); done;  git branch -r --contains HEAD~$i | head -n 1 | awk '{print $1}')^"
+        ri = "!git rebase -i --autostash $(i=1; while [ $(git branch -r --contains HEAD~$i | wc -l) -lt 2 ]; do git branch -r --contains HEAD~$i 1> /dev/null 2>&1 || exit 1; i=$(($i+1)); done;  git branch -r --contains HEAD~$i | head -n 1 | awk '{print $1}')^"
+	ra = rebase --abort
+	rc = rebase --continue
+	mergeff = merge --ff-only
+	s = status
+	b = branch -vv
 [core]
-        autocrlf = input
-        editor = nano
+	autocrlf = input
+	editor = nano
+[sequence]
+	editor = interactive-rebase-tool
