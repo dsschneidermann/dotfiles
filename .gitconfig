@@ -14,11 +14,11 @@
 	c = !git checkout $1 && git status && :
 	commitfix = !git add . && git diff --cached && git commit --amend --no-edit --quiet && git status && :
 	fixup = "!git commit -m \"fixup! $(git show $1 -q | head -n1 | cut -c8-14)\" && git status && :"
-        r = "!git rebase -i --autosquash --autostash $(i=1; while [ $(git branch -r --contains HEAD~$i | wc -l) -lt 2 ]; do git branch -r --contains HEAD~$i 1> /dev/null 2>&1 || exit 1; i=$(($i+1)); done;  git branch -r --contains HEAD~$i | head -n 1 | awk '{print $1}')^"
-        ri = "!git rebase -i --autostash $(i=1; while [ $(git branch -r --contains HEAD~$i | wc -l) -lt 2 ]; do git branch -r --contains HEAD~$i 1> /dev/null 2>&1 || exit 1; i=$(($i+1)); done;  git branch -r --contains HEAD~$i | head -n 1 | awk '{print $1}')^"
+        r = !git rebase -i --autosquash --autostash $(git show $(git merge-base HEAD $1) -q | head -n1 | cut -c8-14)^ && :
+        ri = !git rebase -i --autostash $(git show $(git merge-base HEAD $1) -q | head -n1 | cut -c8-14)^ && :
 	ra = rebase --abort
 	rc = rebase --continue
-	mergeff = merge --ff-only
+	mff = merge --ff-only
 	s = status
 	b = branch -vv
 [core]
