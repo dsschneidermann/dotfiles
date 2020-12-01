@@ -9,15 +9,6 @@ docker() {
  fi
 }
 
-gitgrep() {
- echo Use git log -p and '/' and 'n' for an interactive search
- git log -G $1
-}
-
-gs() {
- git status
-}
-
 repeat() {
  [ "$#" -ne 1 ] && echo "Can only take one single-quoted argument" && return 1
  TempFile=$(tempfile)
@@ -43,7 +34,14 @@ ip() {
  ifconfig | grep --after 2 enp0s3
 }
 
+gitgrep() {
+ # Search git log
+ echo Use git log -p and '/' and 'n' for an interactive search
+ git log -G $1
+}
+
 gitsearch() {
+ # Search git commit content
  commits=$(git log -S $1 --oneline | awk '{print $1;}')
  for commit in $commits; do
   printf "\n"
@@ -52,4 +50,12 @@ gitsearch() {
  done
 }
 
+title() {
+ printf "\033]0; %s \a" "$1"
+}
+
+# Print disk usage when starting shell
 disk
+
+# Added by Flowtale Accelerator
+ac-stack() { export StackName="$1"; test "$1" && echo "$StackName" || unset StackName; }

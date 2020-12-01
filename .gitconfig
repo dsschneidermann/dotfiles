@@ -4,20 +4,24 @@
 [credential]
 	helper = cache --timeout=1000000000
 [alias]
-	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --abbrev-commit
-	start = "!GIT_COMMITTER_DATE=0 git init && git commit --date 0 --allow-empty -m \"Initial commit\""
-	lm = "!printf \"Current HEAD:\n\" && git lg | sed \"/$(git show $(git merge-base HEAD $1) -q | head -n1 | cut -c8-14)/q\" - && printf \"\nTarget branch:\n\" && git lg $1 | sed \"/$(git show $(git merge-base HEAD $1) -q | head -n1 | cut -c8-14)/q\" -"
+	lg = log --date=short --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit
+	llg = log --date=short --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset %Cblue(c: %cd <%cn>)%Creset' --abbrev-commit
+	date = "!git log -1 --format=%ad --date=format:\"%Y-%m-%dT%H:%M:%S%z\" \"$1\" && :"
+	amenddate = "!if [ -z \"$setdate\" ]; then printf \"Missing setdate, use: setdate=\\$(git date COMMIT) git amenddate\"; exit 1; fi; GIT_COMMITTER_DATE=\"$setdate\" git commit --amend --date \"$setdate\" --allow-empty --no-edit --quiet && printf \"\\n\" && git llg HEAD^..HEAD && :"
+	amendauthor = "!git --amend --reset-author --allow-empty --no-edit --quiet && git llg HEAD^..HEAD && :"
+	lm = "!GITLOG=$(git log -1 $(git merge-base HEAD \"$1\") --format=%h) && FIRSTPARAM=\"$1\" && shift && printf \"\\nCurrent branch:\\n\" && git lg --date=short | sed \"/$GITLOG/q\" - && printf \"\\nTarget branch:\\n\" && git lg \"$FIRSTPARAM\" --date=short | sed \"/$GITLOG/q\" - && :"
 	adog = log --all --decorate --oneline --graph
 	shallow-clone = clone --depth=1 --no-single-branch
-	prune-branches = !git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d
+	prune-branches = "!git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d && :"
 	pushf = push --force-with-lease
-	c = !git checkout $1 && git status && :
-	commitfix = !git add . && git diff --cached && git commit --amend --no-edit --quiet && git status && :
-	fixup = "!git commit -m \"fixup! $(git show $1 -q | head -n1 | cut -c8-14)\" && git status && :"
-        r = !git rebase -i --autosquash --autostash $(git show $(git merge-base HEAD $1) -q | head -n1 | cut -c8-14)^ && :
-        ri = !git rebase -i --autostash $(git show $(git merge-base HEAD $1) -q | head -n1 | cut -c8-14)^ && :
+	c = "!git checkout \"$1\" && git status && :"
+	commitfix = "!git add . && git diff --cached && git commit --amend --no-edit --quiet && git status && :"
+	fixup = "!GITLOG=$(git log -1 \"$1\" --format=%h) && git commit -m \"fixup! $GITLOG\" && git status && :"
+        r = "!GITLOG=$(git log -1 $(git merge-base HEAD \"$1\") --format=%h) && git rebase -i --autosquash --autostash $GITLOG && :"
+        ri = "!GITLOG=$(git log -1 $(git merge-base HEAD \"$1\") --format=%h) && git rebase -i --autostash $GITLOG && :"
 	ra = rebase --abort
 	rc = rebase --continue
+	reseth = reset --hard
 	mff = merge --ff-only
 	s = status
 	b = branch -vv
