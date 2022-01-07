@@ -1,5 +1,5 @@
 [user]
-	email = dss@flowtale.ai
+	email = dss@servely.io
 	name = Dennis Schneidermann
 [credential]
 	helper = cache --timeout=1000000000
@@ -18,6 +18,7 @@
 	c = "!git checkout \"$1\" && git status && :"
 	commitfix = "!git add . && git diff --cached && git commit --amend --no-edit --quiet && git status && :"
 	fixup = "!git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup && :"
+	amend = "!GITLOG=$(git log -1 $(git merge-base HEAD \"$1\") --format=%h) && git log $GITLOG^..HEAD --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git revise && :"
 	r = "!GITLOG=$(git log -1 $(git merge-base HEAD \"$1\") --format=%h) && git rebase -i --autosquash --autostash $GITLOG && :"
 	ri = "!GITLOG=$(git log -1 $(git merge-base HEAD \"$1\") --format=%h) && git rebase -i --autostash $GITLOG && :"
 	ra = rebase --abort
@@ -30,3 +31,5 @@
 	editor = nano
 [sequence]
 	editor = interactive-rebase-tool
+[init]
+	defaultBranch = main
