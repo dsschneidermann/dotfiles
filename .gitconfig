@@ -10,20 +10,23 @@
 	amenddate = "!if [ -z \"$setdate\" ]; then printf \"Missing setdate, use: setdate=\\$(git date COMMIT) git amenddate\"; exit 1; fi; GIT_COMMITTER_DATE=\"$setdate\" git commit --amend --date \"$setdate\" --allow-empty --no-edit --quiet && printf \"\\n\" && git llg HEAD^..HEAD && :"
 	amendauthor = "!git --amend --reset-author --allow-empty --no-edit --quiet && git llg HEAD^..HEAD && :"
 	tagdate = "!if [ -z \"$setdate\" ]; then printf \"Missing setdate, use: setdate=\\$(git date COMMIT) git amenddate\"; exit 1; fi; GIT_COMMITTER_DATE=\"$setdate\" git tag "$@" && git llg HEAD^..HEAD && :"
-	lm = "!GITLOG=$(git log -1 $(git merge-base HEAD \"$1\") --format=%h) && FIRSTPARAM=\"$1\" && shift && printf \"\\nCurrent branch:\\n\" && git lg --date=short | sed \"/$GITLOG/q\" - && printf \"\\nTarget branch:\\n\" && git lg \"$FIRSTPARAM\" --date=short | sed \"/$GITLOG/q\" - && :"
+	lm = "!GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && FIRSTPARAM=\"${1:-HEAD}\" && shift && printf \"\\nCurrent branch:\\n\" && git lg --date=short | sed \"/$GITLOG/q\" - && printf \"\\nTarget branch:\\n\" && git lg \"$FIRSTPARAM\" --date=short | sed \"/$GITLOG/q\" - && :"
 	adog = log --all --decorate --oneline --graph
 	shallow-clone = clone --depth=1 --no-single-branch
 	prune-branches = "!git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d && :"
 	pushf = push --force-with-lease
+        pushnew = push -u origin HEAD
 	c = "!git checkout \"$1\" && git status && :"
 	commitfix = "!git add . && git diff --cached && git commit --amend --no-edit --quiet && git status && :"
 	fixup = "!git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup && :"
-	amend = "!GITLOG=$(git log -1 $(git merge-base HEAD \"$1\") --format=%h) && git log $GITLOG^..HEAD --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git revise && :"
-	r = "!GITLOG=$(git log -1 $(git merge-base HEAD \"$1\") --format=%h) && git rebase -i --autosquash --autostash $GITLOG && :"
-	ri = "!GITLOG=$(git log -1 $(git merge-base HEAD \"$1\") --format=%h) && git rebase -i --autostash $GITLOG && :"
+	amend = "!GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && git log $GITLOG^..HEAD --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git revise --edit && :"
+	cut = "!GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && git log $GITLOG^..HEAD --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git revise --cut && :"
+	r = "!GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && git rebase -i --autosquash --autostash $GITLOG && :"
+	ri = "!GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && git rebase -i --autostash $GITLOG && :"
 	ra = rebase --abort
 	rc = rebase --continue
 	mff = merge --ff-only
+        a = "!git add ${1:-:/} && git status && :"
 	s = status
 	b = branch -vv
 [core]
