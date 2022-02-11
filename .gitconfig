@@ -4,7 +4,7 @@
 [credential]
 	helper = cache --timeout=1000000000
 [alias]
-	lg = log --date=short --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit
+    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 	llg = log --date=short --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset %Cblue(c: %cd <%cn>)%Creset' --abbrev-commit
 	date = "!git log -1 --format=%ad --date=format:\"%Y-%m-%dT%H:%M:%S%z\" \"$1\" && :"
 	amenddate = "!if [ -z \"$setdate\" ]; then printf \"Missing setdate, use: setdate=\\$(git date COMMIT) git amenddate\"; exit 1; fi; GIT_COMMITTER_DATE=\"$setdate\" git commit --amend --date \"$setdate\" --allow-empty --no-edit --quiet && printf \"\\n\" && git llg HEAD^..HEAD && :"
@@ -15,23 +15,26 @@
 	shallow-clone = clone --depth=1 --no-single-branch
 	prune-branches = "!git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d && :"
 	pushf = push --force-with-lease
-        pushnew = push -u origin HEAD
+    pushnew = push -u origin HEAD
 	c = "!git checkout \"$1\" && git status && :"
-	commitfix = "!git add . && git diff --cached && git commit --amend --no-edit --quiet && git status && :"
-	fixup = "!git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup && :"
-	amend = "!GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && git log $GITLOG^..HEAD --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git revise --edit && :"
-	cut = "!GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && git log $GITLOG^..HEAD --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git revise --cut && :"
-	r = "!GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && git rebase -i --autosquash --autostash $GITLOG && :"
-	ri = "!GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && git rebase -i --autostash $GITLOG && :"
+	commitfix = "!git add $(git rev-parse --show-toplevel) && git diff --cached && git commit --amend --no-edit --quiet && git status && :"
+	fixup = "!git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup && :"
+	amend = "!git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o git revise && :"
+	amendm = "!git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o git revise --edit && :"
+	aa = "!git add $(git rev-parse --show-toplevel) && git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o git revise && :"
+	aam = "!git add $(git rev-parse --show-toplevel) && git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o git revise --edit && :"
+	cut = "!git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o git revise --cut && :"
+	r = "!export NOVERIFY=1 && GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && git rebase -i --autosquash --autostash $GITLOG && :"
+	ri = "!export NOVERIFY=1 && GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && git rebase -i --autostash $GITLOG && :"
 	ra = rebase --abort
 	rc = rebase --continue
 	mff = merge --ff-only
-        a = "!git add ${1:-:/} && git status && :"
+        a = "!git add ${1:-$(git rev-parse --show-toplevel)} && git status && :"
 	s = status
 	b = branch -vv
 [core]
 	autocrlf = input
-	editor = nano
+	editor = micro
 [sequence]
 	editor = interactive-rebase-tool
 [init]
