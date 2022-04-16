@@ -3,6 +3,10 @@
 alias mv="mv -iv"
 alias cp="cp -iv"
 
+alias la="ls -A"
+alias ll="ls -alF"
+alias ls="ls -CF"
+
 docker() {
  if [ "$*" == "ps" ]; then
   command docker ps --format "table {{.Image}}\t{{.Status}}\t{{.Names}}"
@@ -30,10 +34,6 @@ disk() {
 
 rdisk() {
  REPEATSILENT="YES" repeat 'clear;disk'
-}
-
-ip() {
- ifconfig | grep --after 2 enp0s3
 }
 
 gitgrep() {
