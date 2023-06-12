@@ -1,39 +1,67 @@
-[user]
-	email = dss@servely.io
-	name = Dennis Schneidermann
-[credential]
-	helper = cache --timeout=1000000000
 [alias]
-        lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-	llg = log --date=short --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset %Cblue(c: %cd <%cn>)%Creset' --abbrev-commit
-	date = "!git log -1 --format=%ad --date=format:\"%Y-%m-%dT%H:%M:%S%z\" \"$1\" && :"
-	amenddate = "!if [ -z \"$setdate\" ]; then printf \"Missing setdate, use: setdate=\\$(git date COMMITREF) git amenddate\"; exit 1; fi; GIT_COMMITTER_DATE=\"$setdate\" git commit --amend --date \"$setdate\" --allow-empty --no-edit --quiet && printf \"\\n\" && git llg HEAD^..HEAD && :"
-	amendauthor = "!git --amend --reset-author --allow-empty --no-edit --quiet && git llg HEAD^..HEAD && :"
-	tagdate = "!if [ -z \"$setdate\" ]; then printf \"Missing setdate, use: setdate=\\$(git date COMMITREF) git amenddate\"; exit 1; fi; GIT_COMMITTER_DATE=\"$setdate\" git tag "$@" && git llg HEAD^..HEAD && :"
-	lm = "!GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && FIRSTPARAM=\"${1:-HEAD}\" && shift && printf \"\\nCurrent branch:\\n\" && git lg --date=short | sed \"/$GITLOG/q\" - && printf \"\\nTarget branch:\\n\" && git lg \"$FIRSTPARAM\" --date=short | sed \"/$GITLOG/q\" - && :"
-	prune-branches = "!git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d && :"
-	pushf = push --force-with-lease
+        lg = "log --color --graph --format='%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --abbrev-commit"
+        llg = "log --date=format-local:'%y.%m.%d %H:%M:%S' --color --graph --format='%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset %Cblue(c: %cd <%cn>)%Creset' --abbrev-commit"
+        date = "!git log -1 --format=%ad --date=format:\"%Y-%m-%dT%H:%M:%S%z\" \"$1\" && :"
+        amenddate = "!if [ -z \"$setdate\" ]; then printf \"Missing setdate, use: setdate=\\$(git date COMMITREF) git amenddate\"; exit 1; fi; GIT_COMMITTER_DATE=\"$setdate\" git commit --amend --date \"$setdate\" --allow-empty --no-edit --quiet && printf \"\\n\" && git llg HEAD^..HEAD && :"
+        amendauthor = "!git --amend --reset-author --allow-empty --no-edit --quiet && git llg HEAD^..HEAD && :"
+        tagdate = "!if [ -z \"$setdate\" ]; then printf \"Missing setdate, use: setdate=\\$(git date COMMITREF) git amenddate\"; exit 1; fi; GIT_COMMITTER_DATE=\"$setdate\" git tag "$@" && git llg HEAD^..HEAD && :"
+        lm = "!GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && FIRSTPARAM=\"${1:-HEAD}\" && printf \"\\nCurrent branch:\\n\" && git lg --date=short | sed \"/$GITLOG/q\" - && printf \"\\nTarget branch:\\n\" && git lg \"$FIRSTPARAM\" --date=short | sed \"/$GITLOG/q\" - && :"
+        prune-branches = "!git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d && :"
+        pushf = push --force-with-lease
         pushnew = push -u origin HEAD
-	c = "!git checkout \"$1\" && git status && :"
-	commitfix = "!git add $(git rev-parse --show-toplevel) && git diff --cached && git commit --amend --no-edit --quiet && git status && :"
-	fixup = "!git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup && :"
-	amend = "!git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o git revise && :"
-	amendm = "!git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o git revise --edit && :"
-	aa = "!git add $(git rev-parse --show-toplevel) && git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o git revise && :"
-	aam = "!git add $(git rev-parse --show-toplevel) && git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o git revise --edit && :"
-	cut = "!GIT_NO_HOOKS=(git -c core.hooksPath=/dev/null) && git log -n 100 --pretty=format:'%h %d %s' --no-merges | fzf | cut -c -7 | xargs -o "${GIT_NO_HOOKS[@]}" revise --cut && :"
-	r = "!GIT_NO_HOOKS=(git -c core.hooksPath=/dev/null) && GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && "${GIT_NO_HOOKS[@]}" rebase -i --autosquash --autostash $GITLOG && :"
-	ri = "!GIT_NO_HOOKS=(git -c core.hooksPath=/dev/null) && GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && "${GIT_NO_HOOKS[@]}" rebase -i --autostash $GITLOG && :"
-	ra = rebase --abort
-	rc = rebase --continue
-	mff = merge --ff-only
+        fixup = "!git commit --amend --no-edit --quiet && git status && :"
+        fixupm = "!git commit --amend --quiet && git status && :"
+        fixuppf = "!git commit --amend --no-edit --quiet && git push --force-with-lease && git status && :"
+        afixup = "!git add $(git rev-parse --show-toplevel) && git commit --amend --no-edit --quiet && git status && :"
+        afixupm = "!git add $(git rev-parse --show-toplevel) && git commit --amend --quiet && git status && :"
+        afixuppf = "!git add $(git rev-parse --show-toplevel) && git commit --amend --no-edit --quiet && git push --force-with-lease && git status && :"
+        amend = "!git log -n 100 --format='%C(auto)%h %s %C(green)(%cr)' --no-merges | fzf --no-sort | cut -c -7 | xargs -o git revise && git status && :"
+        amendpf = "!git log -n 100 --format='%C(auto)%h %s %C(green)(%cr)' --no-merges | fzf --no-sort | cut -c -7 | xargs -o git revise && git push --force-with-lease && git status && :"
+        amendm = "!git log -n 100 --format='%C(auto)%h %s %C(green)(%cr)' --no-merges | fzf --no-sort | cut -c -7 | xargs -o git revise --edit && git status && :"
+        aamend = "!git add $(git rev-parse --show-toplevel) && git log -n 100 --format='%C(auto)%h %s %C(green)(%cr)' --no-merges | fzf --no-sort | cut -c -7 | xargs -o git revise && git status && :"
+        aamendpf = "!git add $(git rev-parse --show-toplevel) && git log -n 100 --format='%C(auto)%h %s %C(green)(%cr)' --no-merges | fzf --no-sort | cut -c -7 | xargs -o git revise && git push --force-with-lease && git status && :"
+        aamendm = "!git add $(git rev-parse --show-toplevel) && git log -n 100 --format='%C(auto)%h %s %C(green)(%cr)' --no-merges | fzf --no-sort | cut -c -7 | xargs -o git revise --edit && git status && :"
+        cut = "!GIT_NO_HOOKS='git -c core.hooksPath=/dev/null' && git log -n 100 --format='%C(auto)%h %s %C(green)(%cr)' --no-merges | fzf --no-sort | cut -c -7 | xargs -o $GIT_NO_HOOKS revise --cut && git status && :"
+        ri = "!GIT_NO_HOOKS='git -c core.hooksPath=/dev/null' && GITLOG=$(git log -1 $(git merge-base HEAD \"${1:-HEAD}\") --format=%h) && $GIT_NO_HOOKS rebase -i --autostash $GITLOG && git status && :"
+        ra = rebase --abort
+        rc = rebase --continue
+        mff = merge --ff-only
         a = "!git add ${1:-$(git rev-parse --show-toplevel)} && git status && :"
-	s = status
-	b = branch -vv
+        r = rebase
+        c = commit
+        ch = checkout
+        s = status
+        p = push
+        b = branch -vv
+        dft = difftool # git drf for difftastic - not the default diff
 [core]
-	autocrlf = input
-	editor = nano
+        autocrlf = input
+        editor = nano
+        pager = delta # delta setup
+        diff = delta --dark # delta setup
 [sequence]
-	editor = interactive-rebase-tool
+        editor = interactive-rebase-tool
+[interactive]
+        diffFilter = delta --color-only # delta setup
+[delta]
+        navigate = true # delta setup
+[merge]
+        conflictstyle = diff3 # delta setup
+[diff]
+        colorMoved = default # delta setup
+        tool = difftastic # difftastic setup
+[difftool]
+        prompt = false # difftastic setup
+[difftool "difftastic"]
+        cmd = difft "$LOCAL" "$REMOTE" # difftastic setup
+[pager]
+        difftool = true # difftastic setup
+[credential]
+	helper = /usr/bin/gp credential-helper
+[user]
+	email = dss@valueport.io
+	name = Dennis Schneidermann
 [init]
 	defaultBranch = main
+[pull]
+	ff = only
