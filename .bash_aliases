@@ -34,6 +34,10 @@ repeat_fast() {
         done
 }
 
+duh() {
+        sudo du -h --max-depth 1 . | sort -h --reverse
+}
+
 disk() {
         df -h | grep --color=never -e "% /workspace\|Filesystem"
 }
