@@ -67,44 +67,10 @@ trunk() {
         fi
 }
 
-# Alias template_update to run from cmd-one_time_setup.
-template_update() {
-        # Find a file path by traversing parent directories.
-        findparentfile() {
-                path=${PWD}
-                while [ "${path}" != "" ] && [ ! -f "${path}/$1" ]; do path=${path%/*}; done
-                echo "${path}/$1"
-        }
-        declare DEVCONTAINERFILE= && DEVCONTAINERFILE=$(findparentfile .devcontainer/devcontainer.json)
-        declare PROJECTDIR= && PROJECTDIR="$(realpath "$(dirname "${DEVCONTAINERFILE}")/..")"
-
-        "${PROJECTDIR}"/.devcontainer/scripts/cmd-one_time_setup.sh -- update
-}
-
-# Alias version_check to run from cmd-one_time_setup.
-version_checks() {
-        # Find a file path by traversing parent directories.
-        findparentfile() {
-                path=${PWD}
-                while [ "${path}" != "" ] && [ ! -f "${path}/$1" ]; do path=${path%/*}; done
-                echo "${path}/$1"
-        }
-        declare DEVCONTAINERFILE= && DEVCONTAINERFILE=$(findparentfile .devcontainer/devcontainer.json)
-        declare PROJECTDIR= && PROJECTDIR="$(realpath "$(dirname "${DEVCONTAINERFILE}")/..")"
-
-        POST=1 "${PROJECTDIR}"/.devcontainer/scripts/cmd-one_time_setup.sh -- version_checks
-}
-
 # Alias tldr to update before use.
 tldr() {
         command tldr --update &>/dev/null
         command tldr "$@"
-}
-
-# Interactively search commit content with the less pager.
-gitsearch() {
-        [ -z "$*" ] && echo Missing arguments to less. && return 1
-        git log -p --color=always | less -Rc -p "$*"
 }
 
 # Commit log and diff preview.
@@ -118,7 +84,7 @@ gitlg() {
 }
 
 # Fuzzy search git messages and commit diffs.
-gitf() {
+gitsearch() {
         declare INITIAL_QUERY="$*"
         read -r FZF_DEFAULT_COMMAND <<'EOF'
 git log -p --unified=0 --color=never --format="%H,%C(auto)%h %s %C(green)(%cr)" | awk -F, --re-interval '{if($1~/^[0-9a-f]{40}$/){h=$1}else{printf substr(h,0,7)}print}' | sed 's/^[0-9a-f]\{40\},//'
@@ -155,19 +121,9 @@ EOF
                 --preview "${PREVIEW_CMD}"
 }
 
-# Help output colorizer with bat.
-help() {
-        "$@" --help 2>&1 | bat --plain --language=help
-}
-
-# Watch memory of processes.
-mem() {
-        procs --sortd rss -w
-}
-
-# Watch cpu of processes.
-cpu() {
-        procs --sortd cpu --insert rss -w
+# Search git patches with less.
+gitless() {
+        git log --patch | less
 }
 
 # Simple process list with fzf, from https://github.com/junegunn/fzf.
