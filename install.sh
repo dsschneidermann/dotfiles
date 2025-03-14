@@ -1,5 +1,11 @@
 #!/bin/bash
 
+dir="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+cd -P "${dir}" || exit 1
+BASH_LOADED_FILE=${BASH_LOADED_FILE:-${BASH_SOURCE[0]}}
+
+cd ..
+
 # Link dotfiles
 declare dotfilesDir=dotfiles
 [ -d .dotfiles ] && dotfilesDir=.dotfiles
