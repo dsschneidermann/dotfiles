@@ -185,3 +185,7 @@ fdi() {
         read -ra Command
         "${Command[@]}" "${selectedPath}"
 }
+
+if ! command -v gp &>/dev/null; then
+        alias gp="gitpod env"
+fi
