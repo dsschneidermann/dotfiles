@@ -36,7 +36,7 @@
         dft = difftool # git drf for difftastic - not the default diff
 [core]
         autocrlf = input
-        editor = nano
+	editor = code --wait
         pager = delta # delta setup
         diff = delta --dark # delta setup
 [sequence]
@@ -57,9 +57,9 @@
 [pager]
         difftool = true # difftastic setup
 [credential]
-	helper = /usr/bin/gp credential-helper
+	helper =
 [user]
-	email = dss@valueport.io
+	email = dsschneidermann@gmail.com
 	name = Dennis Schneidermann
 [init]
 	defaultBranch = main
