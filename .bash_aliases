@@ -100,25 +100,7 @@ EOF
 
 # Grep for strings (case-insensitive) in messages and commit diffs.
 gitgrep() {
-        # For some reason, the awk part of the command does not work when passed to fzf's change:reload:, meaning
-        # that commit hashes disappear, so to make best use of this command an argument should be passed.
-        [ -z "$*" ] && echo Missing arguments to less. && return 1
-        declare INITIAL_QUERY="$*"
-        read -r PREFIX <<'EOF'
-git log -p --unified=0 --color=never --format="%H,%C(auto)%h %s %C(green)(%cr)" | awk -F, --re-interval '{if($1~/^[0-9a-f]{40}$/){h=$1}else{printf substr(h,0,7)}print}' | grep --color=always --ignore-case -F
-EOF
-        read -r POSTFIX <<'EOF'
-| sed 's/^[0-9a-f]\{40\},//'
-EOF
-        # trunk-ignore-begin(shellcheck/SC2016)
-        declare PREVIEW_CMD='f() { set -- $(echo -- "$@" | grep -o "[0-9a-f]\{7\}"); [ $# -eq 0 ] && return 0; git show --color=always $1; }; f {}'
-        # trunk-ignore-end(shellcheck/SC2016)
-        FZF_DEFAULT_COMMAND="${PREFIX} '${INITIAL_QUERY}' ${POSTFIX}" \
-                fzf --disabled --ansi --layout=reverse \
-                --bind "change:reload:${PREFIX} '{q}' ${POSTFIX}" \
-                --bind "alt-k:preview-half-page-up,alt-j:preview-half-page-down" --header 'Press Alt + K and J to page up/down the preview' \
-                --query "${INITIAL_QUERY}" \
-                --preview "${PREVIEW_CMD}"
+        git grep "${@}" $(git branch -r | awk '{print $1}')
 }
 
 # Search git patches with less.
